@@ -1,0 +1,6 @@
+streamlit
+crewai
+faiss-cpu
+python-dotenv
+docker
+numpy

@@ -1,0 +1,89 @@
+🚀 Complete, step-by-step consolidated guide to deploy your AI-powered travel planner on AWS EC2—perfect for future reference.
+
+✅ AWS EC2 Deployment Guide (Step-by-Step)
+1️⃣ Launch an EC2 Instance
+1️⃣ Log into AWS Console → Go to EC2 Dashboard (AWS EC2 Console). 2️⃣ Click "Launch Instance" → Select an AMI (Recommended: Ubuntu 22.04 or Amazon Linux 2). 3️⃣ Choose instance type → Select t2.micro (Free-tier eligible). 4️⃣ Configure security group settings:
+
+✅ Allow SSH (TCP, Port 22) → Required for login.
+
+✅ Allow Streamlit port (8501) → Select TCP and add rule for 0.0.0.0/0. 5️⃣ Attach a Key Pair (.pem file) for SSH access. 6️⃣ Launch Instance! 🎉
+
+2️⃣ Connect to AWS EC2 via SSH
+Once your instance is running, connect using Putty or terminal:
+
+bash
+ssh -i your-key.pem ubuntu@your-aws-ip
+🔹 Replace your-key.pem with your downloaded key file. 🔹 Replace your-aws-ip with your instance’s Public IPv4 address.
+
+3️⃣ Install Docker on EC2
+Run the following commands inside your EC2 instance:
+
+bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install docker.io -y
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo usermod -aG docker ubuntu
+newgrp docker
+🚀 Docker is now installed and configured!
+
+4️⃣ Transfer Project Files to AWS
+Use WinSCP (or SCP command) to copy files from your local system to EC2:
+
+bash
+scp -i your-key.pem -r /local-folder-path ubuntu@your-aws-ip:/home/ubuntu/travel-planner
+🔹 Replace /local-folder-path with your actual project directory.
+
+5️⃣ Build Your Docker Image
+Navigate to your project folder:
+
+bash
+cd /home/ubuntu/travel-planner
+Build the Docker image:
+
+bash
+docker build -t travel-planner-ai .
+✔ Creates a Docker image named travel-planner-ai.
+
+6️⃣ Run Your Docker Container
+Execute the following to start the app:
+
+bash
+docker run -d --restart unless-stopped --env-file .env -p 8501:8501 travel-planner-ai
+✔ Maps your app’s port 8501 to EC2’s public access. ✔ Ensures auto-restart upon reboot.
+
+7️⃣ Get Your EC2 Public IP & Access the App
+Retrieve your public IP:
+
+bash
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 3600"`
+curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4
+✔ Copy the displayed IP, and open this in your browser:
+
+http://your-aws-ip:8501
+🚀 Your travel planner is now live! 🎉
+
+✅ Final Optimizations
+✔ Auto-restart on EC2 reboot
+
+bash
+docker run -d --restart unless-stopped --env-file .env -p 8501:8501 travel-planner-ai
+✔ Monitor Docker logs for issues
+
+bash
+docker logs CONTAINER_ID
+✔ Check running containers
+
+bash
+docker ps
+✔ Stop Docker container manually (if needed)
+
+bash
+docker stop CONTAINER_ID
+🔥 Bonus: Set Up a Custom Domain
+Want to replace http://your-aws-ip:8501 with your own domain? Follow these steps: ✅ Use AWS Route 53 or No-IP to link a domain (e.g., mytravelapp.com). ✅ Point an A Record to your EC2 public IP. ✅ Set up HTTPS via Certbot & Nginx for secure access.
+
+🎉 You Have Successfully Deployed Your App on AWS!
+This step-by-step guide covers everything from EC2 setup, Docker installation, file transfers, app deployment, and domain linking. 🚀🔥
+
+Keep this handy for future deployments, and let me know if you ever need further optimizations! 😊✨
